@@ -1,0 +1,28 @@
+<html lang="ja">
+
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+
+<title>test</title>
+<script type="text/javascript">
+window.onload = function(){
+    var cnt=0;
+    var res=document.querySelector("#res");
+    setInterval(function animation(){
+        if (document.visibilityState == 'visible') {
+            cnt++;
+            if (res.innerText == undefined) {
+                res.textContent = cnt;
+            } else {
+                res.innerText = cnt;
+            }
+        }
+    },1000);
+}
+</script>
+</head>
+<body>
+<div id='res'>0</div>
+</body>
+</html>

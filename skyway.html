@@ -38,7 +38,6 @@ function insertDiv(node) {
     $("<div>").append("<div class='head'>").append($(node)).resizable().draggable().appendTo("#streams");
 }
 function start(key) {
-    debugger
     // MultiParty インスタンスを生成
     var multiparty = new MultiParty( {
         "key": key    /* SkyWay keyを指定 */

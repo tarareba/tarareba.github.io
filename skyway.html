@@ -47,9 +47,11 @@ function start(key) {
         var vNode = MultiParty.util.createVideoNode(video);
         insertDiv(vNode);
     }).on("peer_ms", function(video) {
+        console.log("peer_ms", video);
         var vNode = MultiParty.util.createVideoNode(video);
         insertDiv(vNode);
     }).on("ms_close", function(peer_id) {
+        console.log("ms_close", peer_id);
         $("#" + peer_id).parent().remove();
     });
 

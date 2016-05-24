@@ -21,6 +21,9 @@
         height: 25px;
         background-color: #444;
     }
+    #streams div.wrap{
+        position: absolute;
+    }
     video {
         max-width: 100%;
         max-height: calc(100% - 25px);
@@ -35,7 +38,7 @@
 
 <script>
 function insertDiv(node) {
-    $("<div>").append("<div class='head'>").append($(node)).resizable().draggable().appendTo("#streams");
+    $("<div class='wrap'>").append("<div class='head'>").append($(node)).resizable().draggable().appendTo("#streams");
 }
 function start(key) {
     // MultiParty インスタンスを生成

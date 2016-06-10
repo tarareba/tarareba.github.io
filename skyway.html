@@ -10,7 +10,13 @@
 
 <style>
     #streams {
+        position: relative;
         width: 100%;
+    }
+    #streams div.wrap{
+        position: absolute !important;
+        min-width: 50px;
+        min-height: 50px;
     }
     #streams div.ui-resizable{
         border: 1px solid #DDDDDD;
@@ -21,9 +27,6 @@
         height: 25px;
         background-color: #444;
         color: #DDD;
-    }
-    #streams div.wrap{
-        position: absolute;
     }
     video {
         width: 100%;
@@ -36,6 +39,19 @@
 
     #history {
         display: none;
+    }
+    .title {
+        margin: 3px 0 0 3px;
+        float: left;
+        width: calc(100% - 30px - 6px);
+        overflow: hidden;
+    }
+    .close {
+        margin: 3px;
+        float: right;
+        cursor: pointer;
+        font-weight: 900;
+        width: 24px;
     }
     .link {
         cursor: pointer;
@@ -53,10 +69,18 @@ const HISTORY_KEY = "swKey";
 function insertDiv(video) {
     var node = MultiParty.util.createVideoNode(video);
     $("<div class='wrap'>")
-        .append($("<div class='head'>").text(video.id))
+        .append(
+            $("<div class='head'>")
+                .append($("<div class='title'>").text(video.id))
+                .append($("<div class='close'>").text("☓")
+                    .on("click", function(){
+                        $("#" + video.id).parent().remove();
+                    })
+                )
+        )
         .append($(node))
         .resizable()
-        .draggable()
+        .draggable({stack: ".wrap"})
         .appendTo("#streams");
 
     // 初期状態ではミュートに

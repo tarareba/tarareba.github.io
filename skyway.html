@@ -68,13 +68,15 @@ const HISTORY_KEY = "swKey";
 
 function insertDiv(video) {
     var node = MultiParty.util.createVideoNode(video);
+    $(".wrap_" + video.id).remove();
     $("<div class='wrap'>")
+        .addClass("wrap_" + video.id)
         .append(
             $("<div class='head'>")
                 .append($("<div class='title'>").text(video.id))
                 .append($("<div class='close'>").text("☓")
                     .on("click", function(){
-                        $("#" + video.id).parent().remove();
+                        $(".wrap_" + video.id).remove();
                     })
                 )
         )

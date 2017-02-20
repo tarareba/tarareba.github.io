@@ -1,0 +1,49 @@
+<html>
+<head>
+    <script
+          src="https://code.jquery.com/jquery-3.1.1.min.js"
+          integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+          crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function(){
+            $("#lottery").on("click", () => {
+                const values = $("#in").val().split("\n");
+                const list = [];
+                values.forEach((value) => {
+                    if (value && value.trim()) {
+                        list.push(value.trim());
+                    }
+                });
+                
+                if (list.length <= 0) {
+                    $("#result").text("入力エラー");
+                } else {
+                    const index = Math.floor(Math.random() * list.length);
+                    $("#result").text(`選ばれたのは 「${list[index]}」 です！`);
+                }
+            });
+            $.ajax({
+                type: "GET",
+                url: "input.txt",
+                dataType: "text",
+                success: function(response){
+                    $("#in").val(response);
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+
+<div>
+    <textarea id="in"></textarea>
+</div>
+<div>
+    <button id="lottery">抽選</button>
+</div>
+<div>
+    <p id="result"></p>
+</div>
+
+</body>
+</html>

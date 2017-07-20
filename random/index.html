@@ -10,7 +10,7 @@
                 const values = $("#in").val().split("\n");
                 const list = [];
                 values.forEach((value) => {
-                    if (value && value.trim()) {
+                    if (value && value.trim() && !value.startsWith("#") && !value.startsWith("//")) {
                         list.push(value.trim());
                     }
                 });

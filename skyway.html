@@ -74,22 +74,22 @@ const insertDiv = (stream) => {
     removeDiv(peerId);
 
     $("<div class='wrap'>")
-        .addClass("wrap_" + peerId)
-        .append(
-            $("<div class='head'>")
-            .append($("<div class='title'>").text(peerId))
-            .append($("<div class='close'>").text("☓")
-                .on("click", () => {
-                    removeDiv(peerId);
-                })
-            )
+    .addClass("wrap_" + peerId)
+    .append(
+        $("<div class='head'>")
+        .append($("<div class='title'>").text(peerId))
+        .append($("<div class='close'>").text("☓")
+            .on("click", () => {
+                removeDiv(peerId);
+            })
         )
-        .append($(`<video class="remoteVideos" autoplay playsinline>`))
-        .resizable()
-        .draggable({
-            stack: ".wrap"
-        })
-        .appendTo("#streams");
+    )
+    .append($(`<video class="remoteVideos" autoplay playsinline>`))
+    .resizable()
+    .draggable({
+        stack: ".wrap"
+    })
+    .appendTo("#streams");
 
     // 初期状態ではミュートに
     const v = $(".wrap_" + peerId).find("video").get(0);
@@ -100,15 +100,7 @@ const insertDiv = (stream) => {
 
 const createVideoList = () => {
     const videoSelect = $("#videoSource");
-    const selectors = [videoSelect];
     navigator.mediaDevices.enumerateDevices().then((deviceInfos) => {
-        const values = selectors.map((select) => select.val() || "");
-        selectors.forEach((select) => {
-            const children = select.children(":first");
-            while (children.length) {
-                select.remove(children);
-            }
-        });
         for (let i = 0; i !== deviceInfos.length; ++i) {
             const deviceInfo = deviceInfos[i];
             const option = $("<option>").val(deviceInfo.deviceId);
@@ -117,49 +109,52 @@ const createVideoList = () => {
                 videoSelect.append(option);
             }
         }
-        selectors.forEach((select, selectorIndex) => {
-            if (Array.prototype.slice.call(select.children()).some((n) => {
-                    return n.value === values[selectorIndex];
-                })) {
-                select.val(values[selectorIndex]);
-            }
-        });
     });
 }
 
-const start = (key, roomName) => {
+const joinRoom = (peer, roomName, stream) => {
+    peer.joinRoom("mesh_video_" + roomName, stream ? {stream: stream} : {})
+	.on("stream", (stream) => {
+        insertDiv(stream);
+    })
+    .on("removeStream", (stream) => {
+		removeDiv(stream.peerId);
+	})
+    .on("peerLeave", (peerId) => {
+		removeDiv(peerId);
+	});
+}
+
+const start = (key, roomName, videoSource) => {
     // Peer object
     const peer = new Peer({
         key: key,
         debug: 1,
     });
-    
+
     peer.on("open", () => {
         saveHistory(key);
-        const videoSource = $("#videoSource").val();
-        const constraints = {
-            video: {
-                deviceId: videoSource ? {
-                    exact: videoSource
-                } : undefined
-            },
-        };
-        navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
-            insertDiv(stream);
-            peer.joinRoom("mesh_video_" + roomName, {
-                stream: stream
-            }).on("stream", (stream) => {
-                insertDiv(stream);
-            }).on("removeStream", (stream) => {
-        		removeDiv(stream.peerId);
-            }).on("peerLeave", (peerId) => {
-        		removeDiv(peerId);
-            });
-        }).catch((err) => {
-            console.error(err);
-            alert(err.message);
-        });
-    }).on("error", (err) => {
+        if (videoSource == "-") {
+			// 送信なし
+			joinRoom(peer, roomName);
+		} else {
+	        const constraints = {
+	            video: {
+	                deviceId: videoSource ? {
+	                    exact: videoSource
+	                } : undefined
+	            },
+	        };
+	        navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+	            insertDiv(stream);
+				joinRoom(peer, roomName, stream);
+	        }).catch((err) => {
+	            console.error(err);
+	            alert(err.message);
+	        });
+		}
+	})
+    .on("error", (err) => {
         console.error(err);
         alert(err.message);
     });
@@ -189,8 +184,8 @@ const showHistory = () => {
             return;
         }
         for (let i in listJson) {
-            $(".history").append($("<li>").append($("<span>").text(listJson[i]).addClass("link").on("click", () => {
-                $("#key").val($(this).text());
+            $(".history").append($("<li>").append($("<span>").text(listJson[i]).addClass("link").on("click", (el) => {
+                $("#key").val($(el.target).text());
             })));
         }
     } catch (e) {
@@ -206,7 +201,7 @@ const showHistory = () => {
 }
 $(() => {
     $("#btn_ok").on("click", () => {
-        start($("#key").val(), $("#room").val());
+        start($("#key").val(), $("#room").val(), $("#videoSource").val());
         $("#setting, #history").remove();
     });
     showHistory();
@@ -218,7 +213,9 @@ $(() => {
 
 <div id="setting">
     <input type="text" id="key" name="key" placeholder="ここにKEYを入力">
-    <select id="videoSource"></select>
+    <select id="videoSource">
+        <option value="-" selected>なし</option>
+    </select>
     <input type="text" id="room" name="room" placeholder="ここに部屋名を入力" value="kaiware_daikon">
     <input type="button" id="btn_ok" value="OK">
 </div>

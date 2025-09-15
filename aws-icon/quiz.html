@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AWSアイコンクイズ</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+
+      .question-container {
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      img {
+        max-width: 300px;
+        height: auto;
+        display: block;
+        margin: 0 auto 10px;
+      }
+
+      .choices {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1px;
+      }
+
+      .choice {
+        padding: 10px;
+        background-color: rgb(190, 215, 240);
+      }
+
+      .choice.correct {
+        background-color: lightgreen;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="quiz">
+      <button onclick="showCorrect()">解答を見る</button>
+      <button id="next" onclick="next()">次の問題</button>
+      <div class="question-container" id="question">
+        <img id="questionImage" src="" alt="問題の画像" />
+        <p id="questionText"></p>
+        <div class="choices"></div>
+      </div>
+    </div>
+
+    <script>
+      let currentQuestionIndex = 0;
+      const questions = [
+        {
+          mode: "image",
+          choices: [
+            { serviceName: "Amazon-DCV" },
+            { serviceName: "Amazon-EC2", correct: true },
+            { serviceName: "AWS-Parallel-Computing-Service" },
+            { serviceName: "Bottlerocket" },
+          ],
+        },
+        {
+          mode: "text",
+          choices: [
+            { serviceName: "Amazon-EC2-Auto-Scaling", correct: true },
+            { serviceName: "AWS-Wavelength" },
+            { serviceName: "AWS-Parallel-Cluster" },
+            { serviceName: "AWS-App-Runner" },
+          ],
+        },
+        {
+          mode: "text",
+          choices: [
+            { serviceName: "AWS-Chatbot" },
+            { serviceName: "Amazon-CloudWatch" },
+            { serviceName: "AWS-Resource-Explorer", correct: true },
+            { serviceName: "AWS-Launch-Wizard" },
+          ],
+        },
+        {
+          mode: "image",
+          choices: [
+            { serviceName: "AWS-Lake-Formation" },
+            { serviceName: "Amazon-Data-Firehose" },
+            { serviceName: "AWS-Glue", correct: true },
+            { serviceName: "Amazon-EMR" },
+          ],
+        },
+        {
+          mode: "text",
+          choices: [
+            { serviceName: "AWS-Fargate" },
+            { serviceName: "Amazon-Elastic-Container-Service", correct: true },
+            { serviceName: "Amazon-Elastic-Kubernetes-Service" },
+            { serviceName: "Amazon-Elastic-Container-Registry" },
+          ],
+        },
+        {
+          mode: "image",
+          choices: [
+            { serviceName: "AWS-CodeCommit" },
+            { serviceName: "AWS-CodeBuild" },
+            { serviceName: "AWS-CodeDeploy", correct: true },
+            { serviceName: "AWS-CodePipeline" },
+          ],
+        },
+        {
+          mode: "image",
+          choices: [
+            { serviceName: "Amazon-Aurora" },
+            { serviceName: "Amazon-DynamoDB" },
+            { serviceName: "Amazon-RDS" },
+            { serviceName: "Amazon-DocumentDB", correct: true },
+          ],
+        },
+        {
+          mode: "image",
+          choices: [
+            { serviceName: "Elastic-Load-Balancing" },
+            { serviceName: "Amazon-API-Gateway" },
+            { serviceName: "Amazon-CloudFront", correct: true },
+            { serviceName: "AWS-Direct-Connect" },
+          ],
+        },
+        {
+          mode: "text",
+          choices: [
+            { serviceName: "AWS-IAM-Identity-Center", correct: true },
+            { serviceName: "AWS-Key-Management-Service" },
+            { serviceName: "AWS-CloudHSM" },
+            { serviceName: "AWS-Directory-Service" },
+          ],
+        },
+        {
+          mode: "image",
+          choices: [
+            { serviceName: "Amazon-Simple-Storage-Service" },
+            {
+              serviceName: "Amazon-Elastic-Block-Store",
+              correct: true,
+            },
+            { serviceName: "Amazon-File-Cache" },
+            { serviceName: "Amazon-EFS" },
+          ],
+        },
+      ];
+
+      const createImageName = (serviceName) => {
+        return `Arch_${serviceName}_64@5x.png`;
+      };
+
+      const loadQuestion = () => {
+        const question = questions[currentQuestionIndex];
+
+        const questionContainer = document.getElementById("question");
+
+        const correctServiceName = question.choices.find(
+          ({ correct }) => correct
+        ).serviceName;
+
+        const imageElement = document.querySelector("#questionImage");
+        imageElement.src = createImageName(correctServiceName);
+
+        const textElement = document.querySelector("#questionText");
+        textElement.textContent = correctServiceName;
+
+        if (question.mode === "image") {
+          imageElement.style.display = "block";
+          textElement.style.display = "none";
+        } else {
+          imageElement.style.display = "none";
+          textElement.style.display = "block";
+        }
+
+        createChoice(question);
+      };
+
+      const createChoice = (question, isShowCorrect = false) => {
+        const choicesElement = document.querySelector(".choices");
+        choicesElement.innerHTML = "";
+        question.choices.forEach(({ serviceName, correct }, index) => {
+          const choiceElement = document.createElement("div");
+          choiceElement.classList.add("choice");
+          if (correct && isShowCorrect) {
+            choiceElement.classList.add("correct");
+          }
+          const choiceNumber = `<span>${index + 1}</span>`;
+          const choiceText = `<span> : ${serviceName}</span>`;
+          const choiceImage = `<img src="${createImageName(serviceName)}">`;
+          if (isShowCorrect) {
+            choiceElement.innerHTML = choiceNumber + choiceText + choiceImage;
+          } else {
+            if (question.mode === "image") {
+              choiceElement.innerHTML = choiceNumber + choiceText;
+            } else {
+              choiceElement.innerHTML = choiceNumber + choiceImage;
+            }
+          }
+          choicesElement.appendChild(choiceElement);
+        });
+      };
+
+      const showCorrect = () => {
+        const question = questions[currentQuestionIndex];
+        createChoice(question, true);
+      };
+
+      const next = () => {
+        currentQuestionIndex++;
+        loadQuestion();
+        if (currentQuestionIndex == questions.length - 1) {
+          const nextElement = document.querySelector("#next");
+          nextElement.style.display = "none";
+        }
+      };
+
+      loadQuestion(0);
+    </script>
+  </body>
+</html>
